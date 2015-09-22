@@ -13,3 +13,10 @@ plot(years, annualEmissions, col="blue", main="Total Emission by Year", xlab="Ye
 abline(lm(annualEmissions~years))
 dev.off()
 
+#PLOT TWO
+baltimoreEmissions<-sapply(years, function(x) sum(subset(NEI, year==x & fips=="24510")$Emissions))
+
+png(file="plot2.png")
+plot(years, baltimoreEmissions, col="blue", main="Total Emission by Year", xlab="Year", ylab="Total Emissions")
+abline(lm(baltimoreEmissions~years))
+dev.off()
