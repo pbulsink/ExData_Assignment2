@@ -1,7 +1,7 @@
 #Assignment 2.
 #Plots generated stepwise, but this will do it all at once.
 
-NEI<-readRDS("summarySCC_PM25.rds", colClasses=)
+NEI<-readRDS("summarySCC_PM25.rds")
 SCC<-readRDS("Source_Classification_Code.rds")
 
 #PLOT ONE
@@ -19,4 +19,17 @@ baltimoreEmissions<-sapply(years, function(x) sum(subset(NEI, year==x & fips=="2
 png(file="plot2.png")
 plot(years, baltimoreEmissions, col="blue", main="Total Emission by Year", xlab="Year", ylab="Total Emissions")
 abline(lm(baltimoreEmissions~years))
+dev.off()
+
+#PLOT THREE
+sourceTypes<-unique(NEI$type)
+
+#prep the data. melt & Cast
+baltimoreEmissions<-subset(NEI, fips=="24510")
+baltimoreEmissions<-baltimoreEmissions[,!names(baltimoreEmissions) %in% c("fips","SCC","Pollutant")]
+baltimoreEmissions<-melt(baltimoreEmissions, measure.vars = "Emissions")
+baltimoreEmissions<-dcast(baltimoreEmissions, year~type, sum)
+
+png(file="plot3.png")
+
 dev.off()
