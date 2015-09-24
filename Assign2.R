@@ -25,11 +25,20 @@ dev.off()
 sourceTypes<-unique(NEI$type)
 
 #prep the data. melt & Cast
+library(reshape2)
 baltimoreEmissions<-subset(NEI, fips=="24510")
 baltimoreEmissions<-baltimoreEmissions[,!names(baltimoreEmissions) %in% c("fips","SCC","Pollutant")]
 baltimoreEmissions<-melt(baltimoreEmissions, measure.vars = "Emissions")
 baltimoreEmissions<-dcast(baltimoreEmissions, year~type, sum)
+#remelt to make plotting easy
+baltimoreEmissions<-melt(baltimoreEmissions, id.vars = "year")
 
 png(file="plot3.png")
-
+ggplot(baltimoreEmissions, aes(year, value))
+  +facet_grid(.~variable)
+  +geom_point()
+  +geom_smooth(method="lm")
+  +xlab("Year")
+  +ylab("Emission")
+  +ggtitle("Emission by Year For Each Source")
 dev.off()
