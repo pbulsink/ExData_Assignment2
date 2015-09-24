@@ -34,11 +34,34 @@ baltimoreEmissions<-dcast(baltimoreEmissions, year~type, sum)
 baltimoreEmissions<-melt(baltimoreEmissions, id.vars = "year")
 
 png(file="plot3.png")
-ggplot(baltimoreEmissions, aes(year, value))
-  +facet_grid(.~variable)
-  +geom_point()
-  +geom_smooth(method="lm")
-  +xlab("Year")
-  +ylab("Emission")
-  +ggtitle("Emission by Year For Each Source")
+ggplot(baltimoreEmissions, aes(year, value))+
+    facet_grid(.~variable)+
+    geom_point()+
+    geom_smooth(method="lm")+
+    xlab("Year")+
+    ylab("Emission")+
+    ggtitle("Emission by Year For Each Source")
+dev.off()
+
+#PLOT FOUR
+#Find 'Coal' in the unique SCC$EI.Sectors
+coalNames<-grep("Coal", unlist(unique(SCC$EI.Sector)))
+#Get the text of that:
+coalNames<-sapply(coalNames, function(x) as.character(unlist(unique(SCC$EI.Sector))[x]))
+
+#Get the associated SCC:
+coalSCC<-as.character(subset(SCC, EI.Sector %in% coalNames)$SCC)
+
+coalEmissions<-subset(NEI, SCC %in% coalSCC)
+coalEmissions<-coalEmissions[,!names(coalEmissions) %in% c("fips","SCC","Pollutant", "type")]
+coalEmissions<-melt(coalEmissions, measure.vars = "Emissions")
+coalEmissions<-dcast(coalEmissions, year~variable, sum)
+
+png(file="plot4.png")
+ggplot(coalEmissions, aes(year, Emissions))+
+    geom_point()+
+    geom_smooth(method="lm")+
+    xlab("Year")+
+    ylab("Emission")+
+    ggtitle("Emission by Year For Coal Emissions")
 dev.off()
