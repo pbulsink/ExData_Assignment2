@@ -76,7 +76,7 @@ roadNames<-sapply(roadNames, function(x) as.character(unlist(unique(SCC$EI.Secto
 #Get the associated SCC:
 roadSCC<-as.character(subset(SCC, EI.Sector %in% roadNames)$SCC)
 
-roadEmissions<-subset(NEI, SCC %in% roadSCC)
+roadEmissions<-subset(NEI, SCC %in% roadSCC & fips == "24510")
 roadEmissions<-roadEmissions[,!names(roadEmissions) %in% c("fips","SCC","Pollutant", "type")]
 roadEmissions<-melt(roadEmissions, measure.vars = "Emissions")
 roadEmissions<-dcast(roadEmissions, year~variable, sum)
@@ -87,5 +87,28 @@ ggplot(roadEmissions, aes(year, Emissions))+
     geom_smooth(method="lm")+
     xlab("Year")+
     ylab("Emission")+
-    ggtitle("Emission by Year For all Motor Vehicles")
+    ggtitle("Emission by Year For all Motor Vehicles in Baltimore")
 dev.off()
+
+#PLOT SIX
+#We already know what SCC$EI.Sector to use
+BaltLAEmissions<-subset(NEI, SCC %in% roadSCC)
+BaltLAEmissions<-subset(BaltLAEmissions, fips == "24510" | fips == "06037")
+
+BaltLAEmissions<-BaltLAEmissions[,!names(BaltLAEmissions) %in% c("SCC","Pollutant", "type")]
+BaltLAEmissions<-melt(BaltLAEmissions, measure.vars = "Emissions")
+BaltLAEmissions<-dcast(BaltLAEmissions, year~fips, sum)
+colnames(BaltLAEmissions)[2]<-"Los Angeles County, California"
+colnames(BaltLAEmissions)[3]<-"Baltimore City, Maryland"
+BaltLAEmissions<-melt(BaltLAEmissions, id.vars = "year")
+
+png(file="plot6.png")
+ggplot(BaltLAEmissions, aes(year, value))+
+    facet_grid(.~variable)+
+    geom_point()+
+    geom_smooth(method="lm")+
+    xlab("Year")+
+    ylab("Emission")+
+    ggtitle("Emission by Year For all Motor Vehicles in Baltimore and LA")
+dev.off()
+
