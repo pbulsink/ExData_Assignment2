@@ -65,3 +65,27 @@ ggplot(coalEmissions, aes(year, Emissions))+
     ylab("Emission")+
     ggtitle("Emission by Year For Coal Emissions")
 dev.off()
+
+#PLOT FIVE
+#The codebook says 'Mobile - On-Road' is the right EI.Sector to use
+#Find 'all of them' in the unique SCC$EI.Sectors
+roadNames<-grep("Mobile - On-Road", unlist(unique(SCC$EI.Sector)))
+#Get the text of that:
+roadNames<-sapply(roadNames, function(x) as.character(unlist(unique(SCC$EI.Sector))[x]))
+
+#Get the associated SCC:
+roadSCC<-as.character(subset(SCC, EI.Sector %in% roadNames)$SCC)
+
+roadEmissions<-subset(NEI, SCC %in% roadSCC)
+roadEmissions<-roadEmissions[,!names(roadEmissions) %in% c("fips","SCC","Pollutant", "type")]
+roadEmissions<-melt(roadEmissions, measure.vars = "Emissions")
+roadEmissions<-dcast(roadEmissions, year~variable, sum)
+
+png(file="plot5.png")
+ggplot(roadEmissions, aes(year, Emissions))+
+    geom_point()+
+    geom_smooth(method="lm")+
+    xlab("Year")+
+    ylab("Emission")+
+    ggtitle("Emission by Year For all Motor Vehicles")
+dev.off()
